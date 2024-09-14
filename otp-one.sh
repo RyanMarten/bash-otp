@@ -24,9 +24,11 @@ fi
 token="$1"
 if [ -z "$token" ]; then echo "Need token filename"; exit 1; fi
 
+# Password is now coming from macOS Keychain instead of reading stdin
+PASSWORD=$(security find-generic-password -a "${USER}" -s "bash-otp-openssl-password" -w)
+
 # Returns the token
 function get_decrypted_token_from_file {
-    read -s -r -p "Password: " PASSWORD
     echo $PASSWORD | openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -d -salt -pass stdin -in ${TOKENFILES_DIR}/${token}.enc
 }
 
