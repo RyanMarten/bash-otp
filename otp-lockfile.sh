@@ -3,11 +3,11 @@ set -e
 
 # Examples, all use password-based encryption:
 # Encrypt file to file
-#openssl enc -aes-256-cbc -salt -in file.txt -out file.txt.enc
+#openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -pbkdf2 -iter 100000 -salt -in file.txt -out file.txt.enc
 # Decrypt file to stdout
-#openssl enc -aes-256-cbc -d -salt -in file.txt.enc
+#openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -pbkdf2 -iter 100000 -d -salt -in file.txt.enc
 # Decrypt file to file
-#openssl enc -aes-256-cbc -d -salt -in file.txt.enc -out file.txt
+#openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -pbkdf2 -iter 100000 -d -salt -in file.txt.enc -out file.txt
 
 INPUT_FILE="$1"
 PW_FILE=$( mktemp pwfile.XXXXXXXX )
@@ -25,9 +25,9 @@ read -s -r -p "Enter that password again: " PASSWORD2
 if [[ "${PASSWORD1}" == "${PASSWORD2}" ]]; then
 
     echo "${PASSWORD1}" > "${PW_FILE}"
-    openssl enc -aes-256-cbc -salt -in "${INPUT_FILE}" -out "${INPUT_FILE}.enc" -pass file:"${PW_FILE}" && rm "${INPUT_FILE}" && rm "${PW_FILE}"
+    openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -pbkdf2 -iter 100000 -salt -in "${INPUT_FILE}" -out "${INPUT_FILE}.enc" -pass file:"${PW_FILE}" && rm "${INPUT_FILE}" && rm "${PW_FILE}"
     echo "Decrypt this file using the following command:"
-    echo "openssl enc -aes-256-cbc -d -salt -in ${INPUT_FILE}.enc -out ${INPUT_FILE}"
+    echo "openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -pbkdf2 -iter 100000 -d -salt -in ${INPUT_FILE}.enc -out ${INPUT_FILE}"
 else
     echo "The passwords do not match; try that again"
     rm "${PW_FILE}"

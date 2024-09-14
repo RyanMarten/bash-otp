@@ -2,18 +2,19 @@
 
 # Openssl encrypt/decrypt examples
 # Encrypt file to file
-#openssl enc -aes-256-cbc -salt -in file.txt -out file.txt.enc
+#openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt -in file.txt -out file.txt.enc
 # Decrypt file to stdout
-#openssl enc -aes-256-cbc -d -salt -in file.txt.enc
+#openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -d -salt -in file.txt.enc
 # Decrypt file to file
-#openssl enc -aes-256-cbc -d -salt -in file.txt.enc -out file.txt
+#openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -d -salt -in file.txt.enc -out file.txt
 
 # Init
 TOKENFILES_DIR="${BASH_OTP_TOKENFILES_DIR:-$( dirname ${0} )/tokenfiles}"
 TOKENFILES_DIR_MODE="$( ls -ld ${TOKENFILES_DIR} | awk '{print $1}'| sed 's/.//' )"
-U_MODE="$( echo $TOKENFILES_DIR_MODE | awk  -F '' '{print $1 $2 $3}' )"
-G_MODE="$( echo $TOKENFILES_DIR_MODE | awk  -F '' '{print $4 $5 $6}' )"
-A_MODE="$( echo $TOKENFILES_DIR_MODE | awk  -F '' '{print $7 $8 $9}' )"
+
+U_MODE="$( echo $TOKENFILES_DIR_MODE | cut -c2-4 )"
+G_MODE="$( echo $TOKENFILES_DIR_MODE | cut -c5-7 )"
+A_MODE="$( echo $TOKENFILES_DIR_MODE | cut -c8-10 )"
 
 if [ "$( echo $G_MODE | egrep 'r|w|x' )" -o "$( echo $A_MODE | egrep 'r|w|x' )" ]; then
     echo "Perms on [${TOKENFILES_DIR}] are too permissive. Try 'chmod 700 ${TOKENFILES_DIR}' first"
@@ -26,7 +27,7 @@ if [ -z "$token" ]; then echo "Need token filename"; exit 1; fi
 # Returns the token
 function get_decrypted_token_from_file {
     read -s -r -p "Password: " PASSWORD
-    echo $PASSWORD | openssl enc -aes-256-cbc -d -salt -pass stdin -in ${TOKENFILES_DIR}/${token}.enc
+    echo $PASSWORD | openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -d -salt -pass stdin -in ${TOKENFILES_DIR}/${token}.enc
 }
 
 function get_plaintext_token_from_file {
