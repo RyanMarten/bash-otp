@@ -20,8 +20,9 @@ if [ ! -f "${INPUT_FILE}" ]; then
     exit 1
 fi
 
-read -s -r -p "Password to unlock file: " PASSWORD1
+# Password is now coming from macOS Keychain instead of reading stdin
+PASSWORD=$(security find-generic-password -a "${USER}" -s "bash-otp-openssl-password" -w)
 
-echo "${PASSWORD1}" > "${PW_FILE}"
+echo "${PASSWORD}" > "${PW_FILE}"
 openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -d -salt -in "${INPUT_FILE}" -out "${OUTPUT_FILE}" -pass file:"${PW_FILE}"
 rm "${PW_FILE}"
